@@ -48,11 +48,6 @@ jobs:
 
       - name: Run E2E tests
         run: pnpm test:e2e
-        env:
-          # E2E tests run without real API keys (uses mock responses)
-          OPENAI_API_KEY: 'test-key'
-          ANTHROPIC_API_KEY: 'test-key'
-          GOOGLE_API_KEY: 'test-key'
 
       - name: Check for uncommitted codegen changes
         run: |
