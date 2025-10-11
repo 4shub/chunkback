@@ -58,8 +58,8 @@ jobs:
             exit 0
           fi
 
-          # Always use minor version bump for auto-versioning
-          echo "bump=minor" >> $GITHUB_OUTPUT
+          # Always use patch version bump for auto-versioning
+          echo "bump=patch" >> $GITHUB_OUTPUT
 
       - name: Bump version
         id: version
