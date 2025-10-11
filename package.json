@@ -33,7 +33,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
-    "codegen": "tsx scripts/generate-cbpl-types.ts"
+    "codegen": "tsx scripts/generate-cbpl-types/index.ts"
   },
   "dependencies": {
     "express": "^5.1.0",

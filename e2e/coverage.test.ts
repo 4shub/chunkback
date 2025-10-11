@@ -31,6 +31,7 @@ const CommandDefinitionSchema = z.object({
 
 const CBPLDefinitionsSchema = z
   .object({
+    $schema: z.string().optional(),
     version: z.string().regex(/^\d+\.\d+\.\d+$/, 'Version must be in semver format (e.g., 1.0.0)'),
     commands: z.record(
       z.string().regex(/^[A-Z]+$/, 'Command keys must be uppercase letters only'),

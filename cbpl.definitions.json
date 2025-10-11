@@ -1,4 +1,5 @@
 {
+  "$schema": "./cbpl.definitions.schema.json",
   "version": "1.0.0",
   "commands": {
     "SAY": {
