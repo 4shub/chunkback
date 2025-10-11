@@ -7,7 +7,6 @@
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/4shub/chunkback/auto-version-publish.yml)
 ![NPM Version](https://img.shields.io/npm/v/chunkback?color=blue)
 
-
 **ChunkBack lets you test your application code with popular LLM model-like apis and response bodies.**
 
 ChunkBack is a simple express server that emulates the response input and output of popular LLM providers, currently Gemini, Anthropic and OpenAI. Chunkback accepts a custom prompt language called [CBPL](./CBPL.md) that lets you customize the response to your applications.
