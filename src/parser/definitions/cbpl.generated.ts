@@ -22,7 +22,7 @@ export const COMMAND_NAMES: CBPLCommandName[] = [
   'TOOLCALL',
   'CHUNKSIZE',
   'CHUNKLATENCY',
-  'RANDOMLATENCY'
+  'RANDOMLATENCY',
 ];
 
 /**
@@ -70,7 +70,12 @@ export interface RANDOMLATENCYCommand {
 /**
  * All command types
  */
-export type Command = SAYCommand | TOOLCALLCommand | CHUNKSIZECommand | CHUNKLATENCYCommand | RANDOMLATENCYCommand;
+export type Command =
+  | SAYCommand
+  | TOOLCALLCommand
+  | CHUNKSIZECommand
+  | CHUNKLATENCYCommand
+  | RANDOMLATENCYCommand;
 
 /**
  * Zod validation schemas

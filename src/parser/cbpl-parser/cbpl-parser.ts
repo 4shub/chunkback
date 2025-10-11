@@ -24,7 +24,7 @@ export class CBPLParser {
     const commands: ExecutableCommand[] = [];
     let currentChunkSize: number | undefined;
     let currentChunkLatency: number | undefined;
-    let randomLatency: [ number, number] | undefined;
+    let randomLatency: [number, number] | undefined;
 
     while (!this.isAtEnd()) {
       // Skip newlines

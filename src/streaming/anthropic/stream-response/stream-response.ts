@@ -69,8 +69,7 @@ export async function streamAnthropicResponse(res: Response, parsed: ParsedPromp
       const chunkSize = execCommand.chunkSize || content.length;
       const randomLatency = execCommand.randomLatency;
 
-
-      let chunkLatency =  execCommand.chunkLatency || 10;
+      let chunkLatency = execCommand.chunkLatency || 10;
 
       if (randomLatency && !execCommand.chunkLatency) {
         const [min, max] = randomLatency;
