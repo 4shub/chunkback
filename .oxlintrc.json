@@ -4,9 +4,8 @@
     "correctness": "warn",
     "suspicious": "warn",
     "perf": "warn",
-    "typescript/no-explicit-any": "error"
   },
-  "ignore_pattern": [
+  "ignorePatterns": [
     "**/node_modules/**",
     "**/dist/**",
     "**/build/**",
