@@ -6,5 +6,11 @@
     "perf": "warn",
     "typescript/no-explicit-any": "error"
   },
-  "ignore_pattern": ["node_modules", "dist", "build", "coverage"]
+  "ignore_pattern": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/build/**",
+    "**/coverage/**",
+    "**/.pnpm/**"
+  ]
 }
