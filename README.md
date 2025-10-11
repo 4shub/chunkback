@@ -15,7 +15,7 @@ ChunkBack is a simple express server that emulates the response input and output
 ## Quick Start
 
 ```
-npx chunkback
+npx chunkback@latest
 ```
 
 Then run in your terminal:
