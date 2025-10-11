@@ -49,7 +49,32 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Check if version was manually changed
+        id: version_check
+        run: |
+          # Get current version
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          echo "Current version: $CURRENT_VERSION"
+
+          # Check if package.json was modified in the last commit
+          if git diff HEAD~1 HEAD --name-only | grep -q "package.json"; then
+            # Check if version field was changed
+            PREV_VERSION=$(git show HEAD~1:package.json | node -p "JSON.parse(require('fs').readFileSync('/dev/stdin', 'utf8')).version")
+            echo "Previous version: $PREV_VERSION"
+
+            if [ "$CURRENT_VERSION" != "$PREV_VERSION" ]; then
+              echo "Version was manually changed from $PREV_VERSION to $CURRENT_VERSION"
+              echo "manual_change=true" >> $GITHUB_OUTPUT
+              echo "NEW_VERSION=$CURRENT_VERSION" >> $GITHUB_ENV
+              exit 0
+            fi
+          fi
+
+          echo "No manual version change detected"
+          echo "manual_change=false" >> $GITHUB_OUTPUT
+
       - name: Determine version bump type
+        if: steps.version_check.outputs.manual_change == 'false'
         id: version_type
         run: |
           # Check if manually triggered
@@ -62,6 +87,7 @@ jobs:
           echo "bump=patch" >> $GITHUB_OUTPUT
 
       - name: Bump version
+        if: steps.version_check.outputs.manual_change == 'false'
         id: version
         run: |
           BUMP_TYPE="${{ steps.version_type.outputs.bump }}"
@@ -95,10 +121,17 @@ jobs:
         run: pnpm build
 
       - name: Commit version bump
+        if: steps.version_check.outputs.manual_change == 'false'
         run: |
           git add package.json
           git commit -m "chore: bump version to ${{ env.NEW_VERSION }}"
           git push
+
+      - name: Skip version bump
+        if: steps.version_check.outputs.manual_change == 'true'
+        run: |
+          echo "⏭️ Skipping automatic version bump - version was manually changed"
+          echo "Using manually set version: ${{ env.NEW_VERSION }}"
 
       - name: Publish to NPM
         run: pnpm publish --no-git-checks --access public --provenance
