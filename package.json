@@ -1,6 +1,6 @@
 {
   "name": "chunkback",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Multi-provider compatible Express server (OpenAI, Anthropic, Gemini) with custom command language parser",
   "license": "MIT",
   "author": "",
