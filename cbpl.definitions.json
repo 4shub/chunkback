@@ -1,0 +1,74 @@
+{
+  "version": "1.0.0",
+  "commands": {
+    "SAY": {
+      "name": "SAY",
+      "description": "Outputs text content as a streaming response",
+      "parameters": [
+        {
+          "name": "content",
+          "type": "string",
+          "description": "The text content to output"
+        }
+      ],
+      "examples": [
+        "SAY \"Hello, World!\"",
+        "SAY \"This is a test message\"",
+        "SAY \"Multi-line\\ncontent\\nhere\""
+      ]
+    },
+    "TOOLCALL": {
+      "name": "TOOLCALL",
+      "description": "Invokes a tool/function with specified arguments",
+      "parameters": [
+        {
+          "name": "toolName",
+          "type": "string",
+          "description": "The name of the tool to invoke"
+        },
+        {
+          "name": "arguments",
+          "type": "string",
+          "description": "Arguments to pass to the tool"
+        }
+      ],
+      "examples": [
+        "TOOLCALL \"get_weather\" \"San Francisco, CA\"",
+        "TOOLCALL \"search_web\" \"latest AI news\"",
+        "TOOLCALL \"calculate\" \"2 + 2\""
+      ]
+    },
+    "CHUNKSIZE": {
+      "name": "CHUNKSIZE",
+      "description": "Sets the chunk size for subsequent SAY statements",
+      "parameters": [
+        {
+          "name": "size",
+          "type": "number",
+          "description": "Number of characters per chunk (1-1000)",
+          "validation": {
+            "min": 1,
+            "max": 1000
+          }
+        }
+      ],
+      "examples": ["CHUNKSIZE 10", "CHUNKSIZE 50", "CHUNKSIZE 100"]
+    },
+    "CHUNKLATENCY": {
+      "name": "CHUNKLATENCY",
+      "description": "Sets the delay in milliseconds between chunks",
+      "parameters": [
+        {
+          "name": "latency",
+          "type": "number",
+          "description": "Delay in milliseconds between chunks (0-10000)",
+          "validation": {
+            "min": 0,
+            "max": 10000
+          }
+        }
+      ],
+      "examples": ["CHUNKLATENCY 50", "CHUNKLATENCY 100", "CHUNKLATENCY 0"]
+    }
+  }
+}
