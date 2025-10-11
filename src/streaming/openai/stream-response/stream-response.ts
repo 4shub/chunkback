@@ -1,0 +1,67 @@
+import { Response } from 'express';
+import { ParsedPrompt } from '../../../parser/types/command.types';
+import { createChunk } from '../create-chunk/create-chunk';
+import { chunkString } from '../../shared/chunk-string/chunk-string';
+
+export async function streamResponse(res: Response, parsed: ParsedPrompt): Promise<void> {
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+
+  // Check if there are any commands
+  if (parsed.commands.length === 0) {
+    const errorChunk = createChunk('No valid commands found in prompt', true, true);
+    res.write(`data: ${JSON.stringify(errorChunk)}\n\n`);
+    res.write('data: [DONE]\n\n');
+    res.end();
+    return;
+  }
+
+  let isFirstChunk = true;
+
+  // Process each command in sequence
+  for (let cmdIndex = 0; cmdIndex < parsed.commands.length; cmdIndex++) {
+    const execCommand = parsed.commands[cmdIndex];
+    const isLastCommand = cmdIndex === parsed.commands.length - 1;
+
+    if (execCommand.command.type === 'TOOLCALL') {
+      // Handle TOOLCALL
+      const chunk = createChunk(null, isFirstChunk, false, {
+        toolName: execCommand.command.toolName,
+        arguments: execCommand.command.arguments
+      });
+      res.write(`data: ${JSON.stringify(chunk)}\n\n`);
+      isFirstChunk = false;
+    } else if (execCommand.command.type === 'SAY') {
+      // Handle SAY with optional CHUNKSIZE and CHUNKLATENCY
+      const content = execCommand.command.content;
+      const chunkSize = execCommand.chunkSize || content.length;
+      const chunkLatency = execCommand.chunkLatency || 10;
+
+      const chunks = chunkString(content, chunkSize);
+
+      // Send first chunk
+      const firstChunk = createChunk(
+        chunks[0],
+        isFirstChunk,
+        chunks.length === 1 && isLastCommand
+      );
+      res.write(`data: ${JSON.stringify(firstChunk)}\n\n`);
+      isFirstChunk = false;
+
+      // Send remaining chunks
+      for (let i = 1; i < chunks.length; i++) {
+        await new Promise(resolve => setTimeout(resolve, chunkLatency));
+        const chunk = createChunk(
+          chunks[i],
+          false,
+          i === chunks.length - 1 && isLastCommand
+        );
+        res.write(`data: ${JSON.stringify(chunk)}\n\n`);
+      }
+    }
+  }
+
+  res.write('data: [DONE]\n\n');
+  res.end();
+}
