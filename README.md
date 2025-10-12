@@ -1,4 +1,6 @@
+![License: MIT](/assets/chunkback-logo.svg)
 # ChunkBack
+
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue.svg)](https://www.typescriptlang.org/)
@@ -7,7 +9,7 @@
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/4shub/chunkback/auto-version-publish.yml)
 ![NPM Version](https://img.shields.io/npm/v/chunkback?color=blue)
 
-**ChunkBack lets you test your application code with popular LLM model-like apis and response bodies.**
+**ChunkBack lets you test your apps with LLM provider endpoints without having to pay for the providers.**
 
 ChunkBack is a simple express server that emulates the response input and output of popular LLM providers, currently Gemini, Anthropic and OpenAI. Chunkback accepts a custom prompt language called [CBPL](./CBPL.md) that lets you customize the response to your applications.
 
