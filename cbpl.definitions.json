@@ -95,6 +95,22 @@
         }
       ],
       "examples": ["RANDOMLATENCY 50 100", "RANDOMLATENCY 100 200", "RANDOMLATENCY 0 0"]
+    },
+    "LIPSUM": {
+      "name": "LIPSUM",
+      "description": "Generates lorem ipsum placeholder text with specified number of words",
+      "parameters": [
+        {
+          "name": "wordCount",
+          "type": "number",
+          "description": "Number of words to generate (1-1000)",
+          "validation": {
+            "min": 1,
+            "max": 1000
+          }
+        }
+      ],
+      "examples": ["LIPSUM 10", "LIPSUM 50", "LIPSUM 100"]
     }
   }
 }

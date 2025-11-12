@@ -51,10 +51,18 @@ export type ToolCallCommand = TOOLCALLCommand;
 export type Command = GeneratedCommand;
 
 /**
+ * LIPSUM command - auto-generated from definitions
+ */
+export type LipsumCommand = {
+  type: 'LIPSUM';
+  wordCount: number;
+};
+
+/**
  * Executable command with optional chunk configuration
  */
 export interface ExecutableCommand {
-  command: SayCommand | ToolCallCommand;
+  command: SayCommand | ToolCallCommand | LipsumCommand;
   chunkSize?: number;
   chunkLatency?: number;
   randomLatency?: [number, number];
