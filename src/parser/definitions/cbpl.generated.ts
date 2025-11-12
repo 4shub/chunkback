@@ -12,13 +12,7 @@ import definitions from '../../../cbpl.definitions.json';
 /**
  * Command names
  */
-export type CBPLCommandName =
-  | 'SAY'
-  | 'TOOLCALL'
-  | 'CHUNKSIZE'
-  | 'CHUNKLATENCY'
-  | 'RANDOMLATENCY'
-  | 'LIPSUM';
+export type CBPLCommandName = 'SAY' | 'TOOLCALL' | 'CHUNKSIZE' | 'CHUNKLATENCY' | 'RANDOMLATENCY';
 
 /**
  * All command names
@@ -29,7 +23,6 @@ export const COMMAND_NAMES: CBPLCommandName[] = [
   'CHUNKSIZE',
   'CHUNKLATENCY',
   'RANDOMLATENCY',
-  'LIPSUM',
 ];
 
 /**
@@ -75,14 +68,6 @@ export interface RANDOMLATENCYCommand {
 }
 
 /**
- * Generates lorem ipsum placeholder text with specified number of words
- */
-export interface LIPSUMCommand {
-  type: 'LIPSUM';
-  wordCount: number;
-}
-
-/**
  * All command types
  */
 export type Command =
@@ -90,8 +75,7 @@ export type Command =
   | TOOLCALLCommand
   | CHUNKSIZECommand
   | CHUNKLATENCYCommand
-  | RANDOMLATENCYCommand
-  | LIPSUMCommand;
+  | RANDOMLATENCYCommand;
 
 /**
  * Zod validation schemas
@@ -113,9 +97,6 @@ export const CBPL_SCHEMAS = {
   RANDOMLATENCY: {
     minLatency: z.number().int().nonnegative().max(10000),
     maxLatency: z.number().int().nonnegative().max(10000),
-  },
-  LIPSUM: {
-    wordCount: z.number().int().min(1).max(1000),
   },
 } as const;
 

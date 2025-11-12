@@ -39,7 +39,7 @@ curl -X POST http://localhost:5654/v1/chat/completions \
 
 ## Contributing
 
-See [CONTRIBUTING.md](./CONTRIBUTING.md) for:
+See [CONTRIBUTING.md](./CONTRIBUTING.md)
 
 ## License
 

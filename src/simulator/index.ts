@@ -27,88 +27,6 @@ function chunkString(text: string, size: number): string[] {
 }
 
 /**
- * Generate lorem ipsum text with specified number of words
- */
-function generateLoremIpsum(wordCount: number): string {
-  const words = [
-    'lorem',
-    'ipsum',
-    'dolor',
-    'sit',
-    'amet',
-    'consectetur',
-    'adipiscing',
-    'elit',
-    'sed',
-    'do',
-    'eiusmod',
-    'tempor',
-    'incididunt',
-    'ut',
-    'labore',
-    'et',
-    'dolore',
-    'magna',
-    'aliqua',
-    'enim',
-    'ad',
-    'minim',
-    'veniam',
-    'quis',
-    'nostrud',
-    'exercitation',
-    'ullamco',
-    'laboris',
-    'nisi',
-    'aliquip',
-    'ex',
-    'ea',
-    'commodo',
-    'consequat',
-    'duis',
-    'aute',
-    'irure',
-    'in',
-    'reprehenderit',
-    'voluptate',
-    'velit',
-    'esse',
-    'cillum',
-    'fugiat',
-    'nulla',
-    'pariatur',
-    'excepteur',
-    'sint',
-    'occaecat',
-    'cupidatat',
-    'non',
-    'proident',
-    'sunt',
-    'culpa',
-    'qui',
-    'officia',
-    'deserunt',
-    'mollit',
-    'anim',
-    'id',
-    'est',
-    'laborum',
-  ];
-
-  const result: string[] = [];
-  for (let i = 0; i < wordCount; i++) {
-    result.push(words[i % words.length]);
-  }
-
-  // Capitalize first word
-  if (result.length > 0) {
-    result[0] = result[0].charAt(0).toUpperCase() + result[0].slice(1);
-  }
-
-  return result.join(' ') + '.';
-}
-
-/**
  * Create a streaming chunk in OpenAI format
  */
 function createChunk(
@@ -172,32 +90,6 @@ export async function* streamParsedPrompt(
 
     if (command.type === 'SAY') {
       const content = command.content;
-      const chunks = chunkString(content, chunkSize);
-
-      for (let i = 0; i < chunks.length; i++) {
-        const isLastChunk =
-          i === chunks.length - 1 &&
-          parsed.commands.indexOf(executableCommand) === parsed.commands.length - 1;
-
-        // Calculate delay (apply after first chunk)
-        if (i > 0 || !isFirstChunk) {
-          let delay = chunkLatency;
-          if (randomLatency) {
-            const [min, max] = randomLatency;
-            delay = Math.floor(Math.random() * (max - min + 1)) + min;
-          }
-
-          // Wait for the specified delay
-          if (delay > 0) {
-            await new Promise((resolve) => setTimeout(resolve, delay));
-          }
-        }
-
-        yield createChunk(chunks[i], isFirstChunk, isLastChunk);
-        isFirstChunk = false;
-      }
-    } else if (command.type === 'LIPSUM') {
-      const content = generateLoremIpsum(command.wordCount);
       const chunks = chunkString(content, chunkSize);
 
       for (let i = 0; i < chunks.length; i++) {

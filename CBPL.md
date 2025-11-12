@@ -153,34 +153,6 @@ RANDOMLATENCY 100 200
 RANDOMLATENCY 0 0
 ```
 
-### LIPSUM
-
-Generates lorem ipsum placeholder text with specified number of words
-
-**Parameters:**
-
-- `wordCount` (number): Number of words to generate (1-1000) [min: 1, max: 1000]
-
-**Syntax:**
-
-```
-LIPSUM <wordCount>
-```
-
-**Examples:**
-
-```cbpl
-LIPSUM 10
-```
-
-```cbpl
-LIPSUM 50
-```
-
-```cbpl
-LIPSUM 100
-```
-
 ## String Literals
 
 Strings must be enclosed in double quotes. Escape sequences are supported:

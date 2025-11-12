@@ -45,7 +45,6 @@ export class CBPLParser {
         switch (statement.type) {
           case 'SAY':
           case 'TOOLCALL':
-          case 'LIPSUM':
             commands.push({
               command: statement,
               chunkSize: currentChunkSize,
@@ -86,10 +85,6 @@ export class CBPLParser {
 
     if (this.check(TokenType.TOOLCALL)) {
       return this.parseToolCallStatement();
-    }
-
-    if (this.check(TokenType.LIPSUM)) {
-      return this.parseLipsumStatement();
     }
 
     if (this.check(TokenType.CHUNKSIZE)) {
@@ -174,19 +169,6 @@ export class CBPLParser {
       type: 'RANDOMLATENCY',
       minLatency: minLatency.value as number,
       maxLatency: maxLatency.value as number,
-    };
-  }
-
-  /**
-   * Parse LIPSUM statement: LIPSUM number
-   */
-  private parseLipsumStatement(): Command {
-    this.consume(TokenType.LIPSUM, 'Expected LIPSUM keyword');
-    const wordCount = this.consume(TokenType.NUMBER, 'Expected number after LIPSUM');
-
-    return {
-      type: 'LIPSUM',
-      wordCount: wordCount.value as number,
     };
   }
 
