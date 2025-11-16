@@ -58,6 +58,43 @@ describe('Lexer', () => {
       expect(tokens[2].type).toBe(TokenType.SAY);
       expect(tokens[3].type).toBe(TokenType.SAY);
     });
+
+    it('should tokenize TOOLCALL case-insensitively', () => {
+      const lexer = new Lexer('toolcall Toolcall TOOLCALL');
+      const tokens = lexer.tokenize();
+
+      expect(tokens[0].type).toBe(TokenType.TOOLCALL);
+      expect(tokens[1].type).toBe(TokenType.TOOLCALL);
+      expect(tokens[2].type).toBe(TokenType.TOOLCALL);
+    });
+
+    it('should tokenize CHUNKSIZE case-insensitively', () => {
+      const lexer = new Lexer('chunksize ChunkSize CHUNKSIZE');
+      const tokens = lexer.tokenize();
+
+      expect(tokens[0].type).toBe(TokenType.CHUNKSIZE);
+      expect(tokens[1].type).toBe(TokenType.CHUNKSIZE);
+      expect(tokens[2].type).toBe(TokenType.CHUNKSIZE);
+    });
+
+    it('should tokenize CHUNKLATENCY case-insensitively', () => {
+      const lexer = new Lexer('chunklatency ChunkLatency CHUNKLATENCY');
+      const tokens = lexer.tokenize();
+
+      expect(tokens[0].type).toBe(TokenType.CHUNKLATENCY);
+      expect(tokens[1].type).toBe(TokenType.CHUNKLATENCY);
+      expect(tokens[2].type).toBe(TokenType.CHUNKLATENCY);
+    });
+
+    it('should handle mixed case keywords in a program', () => {
+      const input = 'say "hello" chunksize 10 toolcall "test"';
+      const lexer = new Lexer(input);
+      const tokens = lexer.tokenize();
+
+      expect(tokens[0].type).toBe(TokenType.SAY);
+      expect(tokens[2].type).toBe(TokenType.CHUNKSIZE);
+      expect(tokens[4].type).toBe(TokenType.TOOLCALL);
+    });
   });
 
   describe('String Literals', () => {
@@ -334,6 +371,110 @@ SAY "Second"`;
         TokenType.STRING,
         TokenType.EOF,
       ]);
+    });
+  });
+
+  describe('Fancy/Curly Quotes', () => {
+    it('should handle fancy double quotes (left and right)', () => {
+      const lexer = new Lexer('SAY "Hello World"');
+      const tokens = lexer.tokenize();
+
+      expect(tokens).toHaveLength(3); // SAY, STRING, EOF
+      expect(tokens[0].type).toBe(TokenType.SAY);
+      expect(tokens[1]).toMatchObject({
+        type: TokenType.STRING,
+        value: 'Hello World',
+      });
+    });
+
+    it('should handle fancy double quotes with left curly opening', () => {
+      const lexer = new Lexer('SAY "Hello"');
+      const tokens = lexer.tokenize();
+
+      expect(tokens[1]).toMatchObject({
+        type: TokenType.STRING,
+        value: 'Hello',
+      });
+    });
+
+    it('should handle fancy single quotes (left and right)', () => {
+      const lexer = new Lexer("SAY 'Hello World'");
+      const tokens = lexer.tokenize();
+
+      expect(tokens[1]).toMatchObject({
+        type: TokenType.STRING,
+        value: 'Hello World',
+      });
+    });
+
+    it('should handle mixed quote styles in same input', () => {
+      const lexer = new Lexer('SAY "fancy" "straight" \'single\'');
+      const tokens = lexer.tokenize();
+
+      expect(tokens[1].value).toBe('fancy');
+      expect(tokens[2].value).toBe('straight');
+      expect(tokens[3].value).toBe('single');
+    });
+
+    it('should handle fancy quotes with escape sequences', () => {
+      const lexer = new Lexer('"Line 1\\nLine 2"');
+      const tokens = lexer.tokenize();
+
+      expect(tokens[0]).toMatchObject({
+        type: TokenType.STRING,
+        value: 'Line 1\nLine 2',
+      });
+    });
+
+    it('should handle fancy quotes in complex statement', () => {
+      const lexer = new Lexer('TOOLCALL "get_weather" "San Francisco"');
+      const tokens = lexer.tokenize();
+
+      expect(tokens.map((t) => t.type)).toEqual([
+        TokenType.TOOLCALL,
+        TokenType.STRING,
+        TokenType.STRING,
+        TokenType.EOF,
+      ]);
+      expect(tokens[1].value).toBe('get_weather');
+      expect(tokens[2].value).toBe('San Francisco');
+    });
+
+    it('should handle fancy quotes with special characters', () => {
+      const lexer = new Lexer('"!@#$%^&*()_+-=[]{}|;:,.<>?/"');
+      const tokens = lexer.tokenize();
+
+      expect(tokens[0].value).toBe('!@#$%^&*()_+-=[]{}|;:,.<>?/');
+    });
+
+    it('should handle empty string with fancy quotes', () => {
+      const lexer = new Lexer('""');
+      const tokens = lexer.tokenize();
+
+      expect(tokens[0]).toMatchObject({
+        type: TokenType.STRING,
+        value: '',
+      });
+    });
+
+    it('should handle unterminated fancy quote gracefully', () => {
+      const lexer = new Lexer('"unterminated');
+      const tokens = lexer.tokenize();
+
+      expect(tokens[0].type).toBe(TokenType.STRING);
+      expect(tokens[0].value).toBe('unterminated');
+    });
+
+    it('should handle fancy quotes in multi-line program', () => {
+      const input = `SAY "First line"
+CHUNKSIZE 5
+SAY "Second line"`;
+
+      const lexer = new Lexer(input);
+      const tokens = lexer.tokenize();
+
+      expect(tokens[1].value).toBe('First line');
+      expect(tokens[7].value).toBe('Second line');
     });
   });
 

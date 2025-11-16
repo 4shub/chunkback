@@ -39,8 +39,8 @@ export class Lexer {
         continue;
       }
 
-      // Handle string literals (double quotes)
-      if (this.currentChar === '"') {
+      // Handle string literals (double quotes - straight and fancy/curly)
+      if (this.isQuote(this.currentChar)) {
         tokens.push(this.readString());
         continue;
       }
@@ -105,21 +105,28 @@ export class Lexer {
   }
 
   /**
-   * Read a string literal (enclosed in double quotes)
+   * Read a string literal (enclosed in double quotes - straight or fancy/curly)
    */
   private readString(): Token {
     const startLine = this.line;
     const startColumn = this.column;
     let value = '';
 
+    // Store the opening quote to match with closing quote
+    const openingQuote = this.currentChar;
+
     // Skip opening quote
     this.advance();
 
-    while (this.currentChar !== null && this.currentChar !== '"') {
+    // Continue until we find a matching closing quote or end of input
+    while (
+      this.currentChar !== null &&
+      !this.isMatchingClosingQuote(openingQuote, this.currentChar)
+    ) {
       // Handle escape sequences
-      if (this.currentChar === '\\' && this.peek() === '"') {
+      if (this.currentChar === '\\' && this.peek() && this.isQuote(this.peek()!)) {
         this.advance(); // Skip backslash
-        value += '"';
+        value += this.currentChar!;
         this.advance();
       } else if (this.currentChar === '\\' && this.peek() === 'n') {
         this.advance(); // Skip backslash
@@ -140,7 +147,7 @@ export class Lexer {
     }
 
     // Skip closing quote
-    if (this.currentChar === '"') {
+    if (this.currentChar !== null && this.isMatchingClosingQuote(openingQuote, this.currentChar)) {
       this.advance();
     }
 
@@ -236,5 +243,37 @@ export class Lexer {
    */
   private isAlphaNumeric(char: string): boolean {
     return this.isAlpha(char) || this.isDigit(char);
+  }
+
+  /**
+   * Helper: check if character is a quote (straight or fancy/curly)
+   */
+  private isQuote(char: string): boolean {
+    return (
+      char === '"' || // Straight double quote
+      char === '\u201C' || // Left double quotation mark " (fancy/curly opening)
+      char === '\u201D' || // Right double quotation mark " (fancy/curly closing)
+      char === "'" || // Straight single quote
+      char === '\u2018' || // Left single quotation mark ' (fancy/curly opening)
+      char === '\u2019' // Right single quotation mark ' (fancy/curly closing)
+    );
+  }
+
+  /**
+   * Helper: check if the current character is a valid closing quote for the opening quote
+   */
+  private isMatchingClosingQuote(openingQuote: string | null, currentChar: string): boolean {
+    if (!openingQuote) return false;
+
+    // Map opening quotes to their valid closing quotes
+    const quoteMap: { [key: string]: string[] } = {
+      '"': ['"'], // Straight quote closes with straight quote
+      '\u201C': ['\u201D', '"'], // Fancy opening " can close with fancy closing " or straight "
+      "'": ["'"], // Straight single quote closes with straight single quote
+      '\u2018': ['\u2019', "'"], // Fancy opening ' can close with fancy closing ' or straight '
+    };
+
+    const validClosingQuotes = quoteMap[openingQuote] || [openingQuote];
+    return validClosingQuotes.includes(currentChar);
   }
 }
