@@ -18,6 +18,7 @@ export enum TokenType {
   // Literals
   STRING = 'STRING',
   NUMBER = 'NUMBER',
+  JSON_OBJECT = 'JSON_OBJECT',
 
   // Special
   NEWLINE = 'NEWLINE',

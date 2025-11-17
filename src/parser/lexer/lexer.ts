@@ -45,6 +45,12 @@ export class Lexer {
         continue;
       }
 
+      // Handle JSON objects
+      if (this.currentChar === '{') {
+        tokens.push(this.readJsonObject());
+        continue;
+      }
+
       // Handle numbers
       if (this.isDigit(this.currentChar)) {
         tokens.push(this.readNumber());
@@ -154,6 +160,82 @@ export class Lexer {
     return {
       type: TokenType.STRING,
       value,
+      line: startLine,
+      column: startColumn,
+    };
+  }
+
+  /**
+   * Read a JSON object literal (enclosed in curly braces)
+   */
+  private readJsonObject(): Token {
+    const startLine = this.line;
+    const startColumn = this.column;
+    let value = '';
+    let braceCount = 0;
+
+    // Include opening brace
+    value += this.currentChar;
+    braceCount++;
+    this.advance();
+
+    // Continue until we find the matching closing brace
+    while (this.currentChar !== null && braceCount > 0) {
+      // Track nested braces
+      if (this.currentChar === '{') {
+        braceCount++;
+      } else if (this.currentChar === '}') {
+        braceCount--;
+      }
+
+      // Handle strings within JSON to avoid counting braces inside strings
+      if (this.isQuote(this.currentChar)) {
+        const quote = this.currentChar;
+        value += this.currentChar;
+        this.advance();
+
+        // Read until closing quote
+        while (this.currentChar !== null && !this.isMatchingClosingQuote(quote, this.currentChar)) {
+          // Handle escape sequences
+          if (this.currentChar === '\\' && this.peek()) {
+            value += this.currentChar; // backslash
+            this.advance();
+            value += this.currentChar!; // escaped character
+            this.advance();
+          } else {
+            value += this.currentChar;
+            this.advance();
+          }
+        }
+
+        // Include closing quote
+        if (this.currentChar !== null) {
+          value += this.currentChar;
+          this.advance();
+        }
+        continue;
+      }
+
+      value += this.currentChar;
+      this.advance();
+    }
+
+    // Validate JSON syntax
+    try {
+      JSON.parse(value);
+    } catch (e) {
+      // Invalid JSON - return as INVALID token
+      return {
+        type: TokenType.INVALID,
+        value: value,
+        line: startLine,
+        column: startColumn,
+      };
+    }
+
+    return {
+      type: TokenType.JSON_OBJECT,
+      value: value,
       line: startLine,
       column: startColumn,
     };

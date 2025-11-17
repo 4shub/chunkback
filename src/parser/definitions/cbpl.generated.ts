@@ -34,7 +34,7 @@ export interface SAYCommand {
 }
 
 /**
- * Invokes a tool/function with specified arguments
+ * Invokes a tool/function with specified arguments as a JSON object
  */
 export interface TOOLCALLCommand {
   type: 'TOOLCALL';

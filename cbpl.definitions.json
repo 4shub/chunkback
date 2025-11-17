@@ -20,7 +20,7 @@
     },
     "TOOLCALL": {
       "name": "TOOLCALL",
-      "description": "Invokes a tool/function with specified arguments",
+      "description": "Invokes a tool/function with specified arguments as a JSON object",
       "parameters": [
         {
           "name": "toolName",
@@ -30,13 +30,13 @@
         {
           "name": "arguments",
           "type": "string",
-          "description": "Arguments to pass to the tool"
+          "description": "JSON object with arguments to pass to the tool"
         }
       ],
       "examples": [
-        "TOOLCALL \"get_weather\" \"San Francisco, CA\"",
-        "TOOLCALL \"search_web\" \"latest AI news\"",
-        "TOOLCALL \"calculate\" \"2 + 2\""
+        "TOOLCALL \"get_weather\" {\"location\": \"San Francisco\", \"unit\": \"celsius\"}",
+        "TOOLCALL \"search_web\" {\"query\": \"latest AI news\", \"limit\": 10}",
+        "TOOLCALL \"calculate\" {\"operation\": \"add\", \"a\": 2, \"b\": 2}"
       ]
     },
     "CHUNKSIZE": {

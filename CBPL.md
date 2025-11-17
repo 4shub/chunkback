@@ -41,12 +41,12 @@ SAY "Multi-line\ncontent\nhere"
 
 ### TOOLCALL
 
-Invokes a tool/function with specified arguments
+Invokes a tool/function with specified arguments as a JSON object
 
 **Parameters:**
 
 - `toolName` (string): The name of the tool to invoke
-- `arguments` (string): Arguments to pass to the tool
+- `arguments` (string): JSON object with arguments to pass to the tool
 
 **Syntax:**
 
@@ -57,15 +57,15 @@ TOOLCALL <toolName> <arguments>
 **Examples:**
 
 ```cbpl
-TOOLCALL "get_weather" "San Francisco, CA"
+TOOLCALL "get_weather" {"location": "San Francisco", "unit": "celsius"}
 ```
 
 ```cbpl
-TOOLCALL "search_web" "latest AI news"
+TOOLCALL "search_web" {"query": "latest AI news", "limit": 10}
 ```
 
 ```cbpl
-TOOLCALL "calculate" "2 + 2"
+TOOLCALL "calculate" {"operation": "add", "a": 2, "b": 2}
 ```
 
 ### CHUNKSIZE

@@ -299,18 +299,18 @@ describe('Lexer', () => {
       expect(tokens[1].value).toBe('Hello, World!');
     });
 
-    it('should tokenize TOOLCALL statement', () => {
-      const lexer = new Lexer('TOOLCALL "get_weather" "San Francisco"');
+    it('should tokenize TOOLCALL statement with JSON arguments', () => {
+      const lexer = new Lexer('TOOLCALL "get_weather" {"location": "San Francisco"}');
       const tokens = lexer.tokenize();
 
       expect(tokens.map((t) => t.type)).toEqual([
         TokenType.TOOLCALL,
         TokenType.STRING,
-        TokenType.STRING,
+        TokenType.JSON_OBJECT,
         TokenType.EOF,
       ]);
       expect(tokens[1].value).toBe('get_weather');
-      expect(tokens[2].value).toBe('San Francisco');
+      expect(tokens[2].value).toBe('{"location": "San Francisco"}');
     });
 
     it('should tokenize CHUNKSIZE statement', () => {
@@ -475,6 +475,114 @@ SAY "Second line"`;
 
       expect(tokens[1].value).toBe('First line');
       expect(tokens[7].value).toBe('Second line');
+    });
+  });
+
+  describe('JSON Objects', () => {
+    it('should tokenize simple JSON object', () => {
+      const lexer = new Lexer('{"key": "value"}');
+      const tokens = lexer.tokenize();
+
+      expect(tokens[0]).toMatchObject({
+        type: TokenType.JSON_OBJECT,
+        value: '{"key": "value"}',
+      });
+    });
+
+    it('should tokenize JSON object with numbers', () => {
+      const lexer = new Lexer('{"age": 30, "count": 100}');
+      const tokens = lexer.tokenize();
+
+      expect(tokens[0].type).toBe(TokenType.JSON_OBJECT);
+      expect(tokens[0].value).toBe('{"age": 30, "count": 100}');
+    });
+
+    it('should tokenize nested JSON objects', () => {
+      const lexer = new Lexer('{"user": {"name": "John", "age": 30}}');
+      const tokens = lexer.tokenize();
+
+      expect(tokens[0].type).toBe(TokenType.JSON_OBJECT);
+      expect(tokens[0].value).toBe('{"user": {"name": "John", "age": 30}}');
+    });
+
+    it('should tokenize JSON with arrays', () => {
+      const lexer = new Lexer('{"items": [1, 2, 3], "tags": ["a", "b"]}');
+      const tokens = lexer.tokenize();
+
+      expect(tokens[0].type).toBe(TokenType.JSON_OBJECT);
+      const parsed = JSON.parse(tokens[0].value as string);
+      expect(parsed.items).toEqual([1, 2, 3]);
+      expect(parsed.tags).toEqual(['a', 'b']);
+    });
+
+    it('should handle JSON with fancy quotes', () => {
+      const lexer = new Lexer('{"key": "value"}');
+      const tokens = lexer.tokenize();
+
+      expect(tokens[0].type).toBe(TokenType.JSON_OBJECT);
+    });
+
+    it('should handle JSON in TOOLCALL statement', () => {
+      const lexer = new Lexer('TOOLCALL "get_weather" {"location": "SF", "unit": "celsius"}');
+      const tokens = lexer.tokenize();
+
+      expect(tokens.map((t) => t.type)).toEqual([
+        TokenType.TOOLCALL,
+        TokenType.STRING,
+        TokenType.JSON_OBJECT,
+        TokenType.EOF,
+      ]);
+      expect(tokens[1].value).toBe('get_weather');
+      expect(tokens[2].value).toBe('{"location": "SF", "unit": "celsius"}');
+    });
+
+    it('should tokenize empty JSON object', () => {
+      const lexer = new Lexer('{}');
+      const tokens = lexer.tokenize();
+
+      expect(tokens[0].type).toBe(TokenType.JSON_OBJECT);
+      expect(tokens[0].value).toBe('{}');
+    });
+
+    it('should handle JSON with escaped quotes', () => {
+      const lexer = new Lexer('{"message": "He said \\"hello\\""}');
+      const tokens = lexer.tokenize();
+
+      expect(tokens[0].type).toBe(TokenType.JSON_OBJECT);
+      const parsed = JSON.parse(tokens[0].value as string);
+      expect(parsed.message).toBe('He said "hello"');
+    });
+
+    it('should mark invalid JSON as INVALID token', () => {
+      const lexer = new Lexer('{invalid json}');
+      const tokens = lexer.tokenize();
+
+      expect(tokens[0].type).toBe(TokenType.INVALID);
+    });
+
+    it('should handle JSON with booleans and null', () => {
+      const lexer = new Lexer('{"active": true, "deleted": false, "data": null}');
+      const tokens = lexer.tokenize();
+
+      expect(tokens[0].type).toBe(TokenType.JSON_OBJECT);
+      const parsed = JSON.parse(tokens[0].value as string);
+      expect(parsed.active).toBe(true);
+      expect(parsed.deleted).toBe(false);
+      expect(parsed.data).toBe(null);
+    });
+
+    it('should handle JSON with mixed whitespace', () => {
+      const lexer = new Lexer(`{
+        "key": "value",
+        "nested": {
+          "foo": "bar"
+        }
+      }`);
+      const tokens = lexer.tokenize();
+
+      expect(tokens[0].type).toBe(TokenType.JSON_OBJECT);
+      // Verify it's valid JSON
+      expect(() => JSON.parse(tokens[0].value as string)).not.toThrow();
     });
   });
 

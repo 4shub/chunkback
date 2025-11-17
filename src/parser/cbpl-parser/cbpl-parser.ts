@@ -118,12 +118,12 @@ export class CBPLParser {
   }
 
   /**
-   * Parse TOOLCALL statement: TOOLCALL "toolName" "arguments"
+   * Parse TOOLCALL statement: TOOLCALL "toolName" {arguments}
    */
   private parseToolCallStatement(): Command {
     this.consume(TokenType.TOOLCALL, 'Expected TOOLCALL keyword');
     const toolName = this.consume(TokenType.STRING, 'Expected tool name string');
-    const args = this.consume(TokenType.STRING, 'Expected arguments string');
+    const args = this.consume(TokenType.JSON_OBJECT, 'Expected JSON object for arguments');
 
     return {
       type: 'TOOLCALL',
