@@ -27,14 +27,14 @@ export const testCases: TestCase[] = [
   },
   {
     name: 'TOOLCALL command',
-    prompt: 'TOOLCALL "get_weather" "San Francisco"',
+    prompt: 'TOOLCALL "get_weather" {"location": "San Francisco"}',
     verbs: ['TOOLCALL'],
     expectedToolName: 'get_weather',
   },
   {
     name: 'Combo: Multiple SAYs with different chunk settings',
     prompt:
-      'SAY "First"\nCHUNKSIZE 3\nCHUNKLATENCY 50\nSAY "Second"\nCHUNKLATENCY 100\nSAY "Third"\nTOOLCALL "test" "args"',
+      'SAY "First"\nCHUNKSIZE 3\nCHUNKLATENCY 50\nSAY "Second"\nCHUNKLATENCY 100\nSAY "Third"\nTOOLCALL "test" {"args": "value"}',
     verbs: ['SAY', 'CHUNKSIZE', 'CHUNKLATENCY', 'TOOLCALL'],
     expectedContent: 'FirstSecondThird',
     expectedToolName: 'test',
