@@ -15,12 +15,6 @@ export function createServer(options?: ServerOptions): Express {
   // Base middleware
   app.use(express.json());
 
-  // Request logging
-  app.use((req, res, next) => {
-    console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
-    next();
-  });
-
   // Health check endpoint (no auth or middleware required)
   app.get('/health', (req, res) => {
     res.json({ status: 'ok' });
