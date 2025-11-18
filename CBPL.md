@@ -41,31 +41,32 @@ SAY "Multi-line\ncontent\nhere"
 
 ### TOOLCALL
 
-Invokes a tool/function with specified arguments as a JSON object
+Invokes a tool/function with specified arguments as a JSON object. Optionally specify a mocked response to complete the tool calling flow.
 
 **Parameters:**
 
 - `toolName` (string): The name of the tool to invoke
 - `arguments` (string): JSON object with arguments to pass to the tool
+- `mockedResponse` (string): Mocked response to return after the tool call
 
 **Syntax:**
 
 ```
-TOOLCALL <toolName> <arguments>
+TOOLCALL <toolName> <arguments> <mockedResponse>
 ```
 
 **Examples:**
 
 ```cbpl
-TOOLCALL "get_weather" {"location": "San Francisco", "unit": "celsius"}
+TOOLCALL "get_weather" {"location": "San Francisco", "unit": "celsius"} "The weather is 72°F and sunny"
 ```
 
 ```cbpl
-TOOLCALL "search_web" {"query": "latest AI news", "limit": 10}
+TOOLCALL "calculate" {"operation": "add", "a": 2, "b": 2} "The result is 4"
 ```
 
 ```cbpl
-TOOLCALL "calculate" {"operation": "add", "a": 2, "b": 2}
+TOOLCALL "search_web" {"query": "latest AI news", "limit": 10} "Found 10 results about AI advancements"
 ```
 
 ### CHUNKSIZE

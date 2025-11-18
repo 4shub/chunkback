@@ -15,6 +15,15 @@ export function createServer(options?: ServerOptions): Express {
   // Base middleware
   app.use(express.json());
 
+  // Request logging
+  app.use((req, res, next) => {
+    console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
+    if (req.method === 'POST' && req.path.includes('chat/completions')) {
+      console.log('Messages:', JSON.stringify(req.body?.messages, null, 2));
+    }
+    next();
+  });
+
   // Health check endpoint (no auth or middleware required)
   app.get('/health', (req, res) => {
     res.json({ status: 'ok' });

@@ -34,12 +34,13 @@ export interface SAYCommand {
 }
 
 /**
- * Invokes a tool/function with specified arguments as a JSON object
+ * Invokes a tool/function with specified arguments as a JSON object. Optionally specify a mocked response to complete the tool calling flow.
  */
 export interface TOOLCALLCommand {
   type: 'TOOLCALL';
   toolName: string;
   arguments: string;
+  mockedResponse: string;
 }
 
 /**
@@ -87,6 +88,7 @@ export const CBPL_SCHEMAS = {
   TOOLCALL: {
     toolName: z.string(),
     arguments: z.string(),
+    mockedResponse: z.string(),
   },
   CHUNKSIZE: {
     size: z.number().int().min(1).max(1000),

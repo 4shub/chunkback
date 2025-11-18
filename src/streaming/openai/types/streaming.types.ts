@@ -10,10 +10,10 @@ export interface StreamChunk {
       content?: string;
       tool_calls?: Array<{
         index: number;
-        id: string;
-        type: string;
+        id?: string;
+        type?: string;
         function: {
-          name: string;
+          name?: string;
           arguments: string;
         };
       }>;

@@ -223,7 +223,7 @@ export class Lexer {
     // Validate JSON syntax
     try {
       JSON.parse(value);
-    } catch (e) {
+    } catch {
       // Invalid JSON - return as INVALID token
       return {
         type: TokenType.INVALID,

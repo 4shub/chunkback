@@ -2,6 +2,7 @@ import { Response } from 'express';
 import { ParsedPrompt } from '../../../parser/types/command.types';
 import { createChunk } from '../create-chunk/create-chunk';
 import { chunkString } from '../../shared/chunk-string/chunk-string';
+import { storeMockedResponse } from '../../shared/tool-response-cache/tool-response-cache';
 
 export async function streamResponse(res: Response, parsed: ParsedPrompt): Promise<void> {
   res.setHeader('Content-Type', 'text/event-stream');
@@ -25,13 +26,47 @@ export async function streamResponse(res: Response, parsed: ParsedPrompt): Promi
     const isLastCommand = cmdIndex === parsed.commands.length - 1;
 
     if (execCommand.command.type === 'TOOLCALL') {
-      // Handle TOOLCALL
-      const chunk = createChunk(null, isFirstChunk, false, {
-        toolName: execCommand.command.toolName,
-        arguments: execCommand.command.arguments,
-      });
-      res.write(`data: ${JSON.stringify(chunk)}\n\n`);
+      // Handle TOOLCALL - stream arguments incrementally
+      const toolName = execCommand.command.toolName;
+      const argumentsStr = execCommand.command.arguments;
+      const mockedResponse = execCommand.command.mockedResponse;
+      const chunkSize = execCommand.chunkSize || 5; // Default to 5 chars per chunk for tool calls
+      const chunkLatency = execCommand.chunkLatency || 10;
+
+      const argumentChunks = chunkString(argumentsStr, chunkSize);
+
+      // Generate call ID
+      const callId = `call_${Date.now()}`;
+
+      // Store mocked response (always required)
+      storeMockedResponse(callId, mockedResponse);
+
+      // Send first chunk with tool name and initial arguments
+      const firstToolChunk = createChunk(
+        null,
+        isFirstChunk,
+        argumentChunks.length === 1 && isLastCommand,
+        {
+          toolName: toolName,
+          arguments: argumentChunks[0],
+          isFirstToolChunk: true,
+          callId: callId,
+        }
+      );
+      res.write(`data: ${JSON.stringify(firstToolChunk)}\n\n`);
       isFirstChunk = false;
+
+      // Send remaining argument chunks as deltas
+      for (let i = 1; i < argumentChunks.length; i++) {
+        await new Promise((resolve) => setTimeout(resolve, chunkLatency));
+        const chunk = createChunk(null, false, i === argumentChunks.length - 1 && isLastCommand, {
+          toolName: toolName,
+          arguments: argumentChunks[i],
+          isFirstToolChunk: false,
+          callId: callId,
+        });
+        res.write(`data: ${JSON.stringify(chunk)}\n\n`);
+      }
     } else if (execCommand.command.type === 'SAY') {
       // Handle SAY with optional CHUNKSIZE and CHUNKLATENCY
       const content = execCommand.command.content;
