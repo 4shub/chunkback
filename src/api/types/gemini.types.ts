@@ -4,6 +4,10 @@ export interface GeminiPart {
     name: string;
     args: Record<string, unknown>;
   };
+  functionResponse?: {
+    name: string;
+    response: Record<string, unknown>;
+  };
 }
 
 export interface GeminiContent {

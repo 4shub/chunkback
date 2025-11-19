@@ -79,6 +79,100 @@ describe('Gemini Endpoint E2E Tests', () => {
     });
   });
 
+  // Test complete tool calling flow with follow-up
+  it('should handle tool call flow with follow-up request', async () => {
+    // Step 1: Send initial request with TOOLCALL
+    const initialResponse = await fetch(`${baseUrl}/v1/models/echo-model/generateContent`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        contents: [
+          {
+            role: 'user',
+            parts: [
+              {
+                text: 'TOOLCALL "get_weather" {"location": "San Francisco"} "The weather is 72°F and sunny"',
+              },
+            ],
+          },
+        ],
+      }),
+    });
+
+    expect(initialResponse.ok).toBe(true);
+    const initialText = await initialResponse.text();
+    const initialLines = initialText.split('\n').filter((line) => line.trim().length > 0);
+    const initialChunks = initialLines.map((line) => JSON.parse(line));
+
+    // Extract function call from initial response
+    const functionCallParts = initialChunks
+      .flatMap((chunk) => chunk.candidates[0]?.content?.parts || [])
+      .filter((part) => part.functionCall);
+
+    expect(functionCallParts.length).toBeGreaterThan(0);
+    const functionCall = functionCallParts[0].functionCall;
+    expect(functionCall.name).toBe('get_weather');
+    expect(functionCall.args).toEqual({ location: 'San Francisco' });
+
+    // Step 2: Send follow-up request with function response
+    const followUpResponse = await fetch(`${baseUrl}/v1/models/echo-model/generateContent`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        contents: [
+          {
+            role: 'user',
+            parts: [
+              {
+                text: 'TOOLCALL "get_weather" {"location": "San Francisco"} "The weather is 72°F and sunny"',
+              },
+            ],
+          },
+          {
+            role: 'model',
+            parts: [
+              {
+                functionCall: {
+                  name: 'get_weather',
+                  args: { location: 'San Francisco' },
+                },
+              },
+            ],
+          },
+          {
+            role: 'user',
+            parts: [
+              {
+                functionResponse: {
+                  name: 'get_weather',
+                  response: { result: 'Current weather data' },
+                },
+              },
+            ],
+          },
+        ],
+      }),
+    });
+
+    expect(followUpResponse.ok).toBe(true);
+    const followUpText = await followUpResponse.text();
+    const followUpLines = followUpText.split('\n').filter((line) => line.trim().length > 0);
+    const followUpChunks = followUpLines.map((line) => JSON.parse(line));
+
+    // Verify mocked response is returned
+    const textParts = followUpChunks
+      .flatMap((chunk) => chunk.candidates[0]?.content?.parts || [])
+      .filter((part) => part.text)
+      .map((part) => part.text);
+
+    const mockedContent = textParts.join('');
+    expect(mockedContent).toBe('The weather is 72°F and sunny');
+  });
+
   // Validate verb coverage
   it('should test all verbs', () => {
     const testedVerbs = collectTestedVerbs(testCases);

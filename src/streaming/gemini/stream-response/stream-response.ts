@@ -2,6 +2,7 @@ import { Response } from 'express';
 import { ParsedPrompt } from '../../../parser/types/command.types';
 import { createGeminiChunk } from '../create-chunk/create-chunk';
 import { chunkString } from '../../shared/chunk-string/chunk-string';
+import { storeMockedResponse } from '../../shared/tool-response-cache/tool-response-cache';
 
 export async function streamGeminiResponse(res: Response, parsed: ParsedPrompt): Promise<void> {
   res.setHeader('Content-Type', 'application/json');
@@ -23,6 +24,10 @@ export async function streamGeminiResponse(res: Response, parsed: ParsedPrompt):
 
     if (execCommand.command.type === 'TOOLCALL') {
       // Handle TOOLCALL
+      // For Gemini, we use the function name as the ID since Gemini doesn't have explicit tool call IDs
+      const functionName = execCommand.command.toolName;
+      await storeMockedResponse(functionName, execCommand.command.mockedResponse);
+
       const chunk = createGeminiChunk(null, isLastCommand, {
         toolName: execCommand.command.toolName,
         arguments: execCommand.command.arguments,

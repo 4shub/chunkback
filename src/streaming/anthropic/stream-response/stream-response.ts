@@ -2,6 +2,8 @@ import { Response } from 'express';
 import { ParsedPrompt } from '../../../parser/types/command.types';
 import { createAnthropicChunk } from '../create-chunk/create-chunk';
 import { chunkString } from '../../shared/chunk-string/chunk-string';
+import { storeMockedResponse } from '../../shared/tool-response-cache/tool-response-cache';
+import { nanoid } from 'nanoid';
 
 export async function streamAnthropicResponse(res: Response, parsed: ParsedPrompt): Promise<void> {
   res.setHeader('Content-Type', 'text/event-stream');
@@ -36,11 +38,16 @@ export async function streamAnthropicResponse(res: Response, parsed: ParsedPromp
         contentBlockIndex++;
       }
 
+      // Generate tool_use_id and store mocked response
+      const toolUseId = `toolu_${nanoid(12)}`;
+      await storeMockedResponse(toolUseId, execCommand.command.mockedResponse);
+
       // Handle TOOLCALL - always start a new block for tools
       const needsBlockStart = isFirstChunk || currentBlockType === 'text';
       const chunks = createAnthropicChunk(null, needsBlockStart, isLastCommand, {
         toolName: execCommand.command.toolName,
         arguments: execCommand.command.arguments,
+        toolUseId: toolUseId,
       });
 
       // Update indices for tool block

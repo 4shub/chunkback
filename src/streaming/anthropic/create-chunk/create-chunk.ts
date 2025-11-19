@@ -4,7 +4,7 @@ export function createAnthropicChunk(
   content: string | null,
   isFirst: boolean = false,
   isLast: boolean = false,
-  toolCall?: { toolName: string; arguments: string }
+  toolCall?: { toolName: string; arguments: string; toolUseId?: string }
 ): AnthropicStreamChunk[] {
   const chunks: AnthropicStreamChunk[] = [];
 
@@ -34,7 +34,7 @@ export function createAnthropicChunk(
       content_block: toolCall
         ? {
             type: 'tool_use',
-            id: `toolu_${Date.now()}`,
+            id: toolCall.toolUseId || `toolu_${Date.now()}`,
             name: toolCall.toolName,
             input: {},
           }
