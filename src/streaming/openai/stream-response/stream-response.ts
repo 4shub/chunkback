@@ -3,6 +3,7 @@ import { ParsedPrompt } from '../../../parser/types/command.types';
 import { createChunk } from '../create-chunk/create-chunk';
 import { chunkString } from '../../shared/chunk-string/chunk-string';
 import { storeMockedResponse } from '../../shared/tool-response-cache/tool-response-cache';
+import { nanoid } from 'nanoid';
 
 export async function streamResponse(res: Response, parsed: ParsedPrompt): Promise<void> {
   res.setHeader('Content-Type', 'text/event-stream');
@@ -36,7 +37,7 @@ export async function streamResponse(res: Response, parsed: ParsedPrompt): Promi
       const argumentChunks = chunkString(argumentsStr, chunkSize);
 
       // Generate call ID (UUID + timestamp for uniqueness)
-      const callId = `call_${crypto.randomUUID()}_${Date.now()}`;
+      const callId = `call_${nanoid(12)}`;
 
       // Store mocked response (always required)
       storeMockedResponse(callId, mockedResponse);

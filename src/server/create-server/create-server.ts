@@ -1,5 +1,7 @@
 import express, { Express, RequestHandler } from 'express';
 import { createRouter } from '../../api/routes/routes';
+import { CacheAdapter } from '../../streaming/shared/tool-response-cache/cache-adapter.interface';
+import { setCacheAdapter } from '../../streaming/shared/tool-response-cache/tool-response-cache';
 
 export interface ServerOptions {
   /**
@@ -7,10 +9,21 @@ export interface ServerOptions {
    * These will be applied in order before the API routes
    */
   middleware?: RequestHandler[];
+
+  /**
+   * Cache adapter for tool response caching
+   * Defaults to in-memory cache if not provided
+   */
+  cacheAdapter?: CacheAdapter;
 }
 
 export function createServer(options?: ServerOptions): Express {
   const app = express();
+
+  // Set cache adapter if provided
+  if (options?.cacheAdapter) {
+    setCacheAdapter(options.cacheAdapter);
+  }
 
   // Base middleware
   app.use(express.json());

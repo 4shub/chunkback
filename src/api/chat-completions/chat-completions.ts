@@ -17,13 +17,13 @@ export async function chatCompletions(req: Request, res: Response): Promise<void
     }
 
     // Check if this is a follow-up request with tool results
-    const toolMessages = body.messages.filter(
-      (msg): msg is OpenAIToolMessage => msg.role === 'tool'
-    );
-    if (toolMessages.length > 0) {
+    const lastMessage = body.messages[body.messages.length - 1];
+    const isToolMessage = lastMessage.role === 'tool';
+
+    if (isToolMessage) {
       // This is a follow-up request - return the mocked response
-      const toolMessage = toolMessages[toolMessages.length - 1];
-      const mockedResponse = getMockedResponse(toolMessage.tool_call_id);
+      const toolMessage = lastMessage as OpenAIToolMessage;
+      const mockedResponse = await getMockedResponse(toolMessage.tool_call_id);
 
       if (mockedResponse) {
         // Stream the mocked response

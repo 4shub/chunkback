@@ -2,11 +2,12 @@ import { createServer } from './server/create-server/create-server';
 
 // Re-export for external use
 export { createServer, ServerOptions } from './server/create-server/create-server';
+export { CacheAdapter } from './streaming/shared/tool-response-cache/cache-adapter.interface';
+export { InMemoryCacheAdapter } from './streaming/shared/tool-response-cache/in-memory-cache-adapter';
 
 const PORT = process.env.HOST_PORT || process.env.PORT || 5653;
 
 // Create server with auth middleware
-// Note: For open source version, this can be created without middleware
 const app = createServer({
   middleware: [],
 });
